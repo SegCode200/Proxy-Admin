@@ -10,6 +10,7 @@ export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   console.log(id);
   const { product, isLoading, error } = useGetProductById(id as string);
+
   const [isProcessing, setIsProcessing] = useState(false);
 
   if (isLoading) {

@@ -36,3 +36,13 @@ export const GetProductById = async (id: string) => {
     throw error;
   }
 };
+
+export const GetProductById = async (id: string) => {
+  try {
+    const res = await list.get(`/listing/${id}`);
+    console.log(res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
