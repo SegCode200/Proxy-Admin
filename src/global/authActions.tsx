@@ -1,5 +1,5 @@
 import { loginAdmin } from "@/apis/adminLogin";
-import { setUser } from "@/store/authSlice ";
+import { setUser } from "@/store/authSlice";
 import type { AppDispatch } from "@/store/store";
 
 export const login =

@@ -7,8 +7,8 @@ import { useSelector } from "react-redux";
 export function StatsOverview() {
   const token = useSelector((state: RootState) => state?.auth?.user?.token);
 
-  const { data, isLoading, error } = useDashboardStat(token);
-  console.log(data?.data?.users);
+  const { data, isLoading, error } = useDashboardStat(token as string);
+  console.log(data?.data);
 
   if (error) {
     return <div>Failed to load dashboard stats.</div>;
@@ -23,7 +23,7 @@ export function StatsOverview() {
       change: "+5.2% since last week",
     },
     {
-      title: "Total Products",
+      title: "Total Listings",
       value: isLoading ? "Loading" : data?.data?.listings ?? 0,
       icon: DollarSign,
       color: "text-green-500",

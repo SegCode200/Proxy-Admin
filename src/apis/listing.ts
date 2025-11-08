@@ -36,3 +36,58 @@ export const GetProductById = async (id: string) => {
     throw error;
   }
 };
+
+export const approveListing = async (listingId: string, token: string) => {
+  try {
+    const res = await api.post(
+      "/approve",
+      { listingId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const rejectListing = async (
+  listingId: string,
+  rejectionNote: string,
+  token: string
+) => {
+  try {
+    const res = await api.post(
+      "/reject",
+      { listingId, rejectionNote },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const removeListing = async (listingId: string, token: string) => {
+  try {
+    const res = await api.post(
+      "/remove",
+      { listingId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

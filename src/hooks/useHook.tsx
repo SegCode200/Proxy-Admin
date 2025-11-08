@@ -18,11 +18,10 @@ interface ApiResponse<T> {
 }
 
 interface DashboardStats {
-  totalUsers: number;
-  totalRiders: number;
-  totalVendors: number;
-  totalDeliveries: number;
-  recentActivity: any[];
+  users: number;
+  listings: number;
+  kycPending: number;
+  reports: number;
 }
 
 interface User {

@@ -1,21 +1,29 @@
-"use client";
-
 import { useState } from "react";
 import {
   Menu,
   X,
   BarChart3,
-  Settings,
   Users,
   ShoppingCart,
   LogOut,
   Motorbike,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutState } from "@/store/authSlice";
+import { persistor } from "@/store/store";
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const handelLogOut = async () => {
+    dispatch(logoutState());
+    await persistor.purge();
+    navigate("/login");
+    console.log("LogOut Successful 😁🥂😉");
+  };
   return (
     <>
       <button
@@ -40,15 +48,17 @@ export function Sidebar() {
         </div>
 
         <nav className="p-4 space-y-2">
-          <NavLink icon={BarChart3} label="Dashboard" href="/" active={false} />
+          <NavLink icon={BarChart3} label="Dashboard" href="/" />
           <NavLink icon={Users} label="Users" href="/users" />
           <NavLink icon={Motorbike} label="Rides" href="/rides" />
           <NavLink icon={ShoppingCart} label="Listing" href="/listing" />
-          <NavLink icon={Settings} label="Settings" href="#" />
         </nav>
 
         <div className="absolute bottom-6 left-6 right-6">
-          <button className="flex items-center w-full gap-3 px-4 py-3 transition-colors rounded-lg hover:bg-sidebar-accent text-sidebar-foreground">
+          <button
+            onClick={handelLogOut}
+            className="flex items-center w-full gap-3 px-4 py-3 transition-colors rounded-lg hover:bg-sidebar-accent text-sidebar-foreground"
+          >
             <LogOut size={20} />
             <span>Logout</span>
           </button>
@@ -68,17 +78,25 @@ export function Sidebar() {
 interface NavLinkProps {
   icon: any;
   label: string;
-  href: string;
+  href?: string;
   active?: boolean;
+  onClick?: () => void;
 }
 
-function NavLink({ icon: Icon, label, href, active }: NavLinkProps) {
+function NavLink({
+  icon: Icon,
+  label,
+  href = "#",
+  active,
+  onClick,
+}: NavLinkProps) {
   const location = useLocation();
   const path = location.pathname;
   active = path === href ? true : false;
   return (
     <Link
       to={href}
+      onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
         active
           ? "bg-[#004ccf] text-[#EAFAFA]"
