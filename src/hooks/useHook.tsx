@@ -8,7 +8,7 @@ import {
 } from "@/apis/users";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
-import { AllProduct } from "@/apis/listing";
+import { AllProduct, GetProductById } from "@/apis/listing";
 
 // API Response Types
 interface ApiResponse<T> {
@@ -71,6 +71,16 @@ interface Product {
     email: string;
     name: string;
   };
+  media: Array<{
+    id: string;
+    url: string;
+    publicId: string;
+    mimeType: string;
+    size: number;
+    userId: string | null;
+    listingId: string;
+    createdAt: string;
+  }>;
 }
 
 interface RideStats {
@@ -393,20 +403,57 @@ export const useAllProduct = (token?: string) => {
     }
   );
 
-  // Normalize product list from response
+  // Normalize product list from API response
   let products: Product[] = [];
-  if (data) {
-    if (Array.isArray(data)) products = data as Product[];
-    else if (Array.isArray((data as any).data)) products = (data as any).data;
-    else if (Array.isArray((data as any).products))
-      products = (data as any).products;
-    else if ((data as any).items && Array.isArray((data as any).items))
-      products = (data as any).items;
+  if (data?.success && Array.isArray(data.data)) {
+    products = data.data;
   }
 
   return {
     data,
     products,
+    error,
+    isLoading,
+    mutate,
+  };
+};
+
+/**
+ * Hook to fetch a single product by ID via admin listing API
+ * @param id Product ID
+ * @param token Authentication token
+ * @returns raw response, processed product object, loading and error states
+ */
+export const useGetProductById = (id: string) => {
+  const fetcher = async () => {
+    try {
+      const response = await GetProductById(id);
+      console.log("Res", response);
+      // API may return different shapes; return as-is and let caller handle
+      return response;
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Failed to fetch product");
+    }
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    id ? ["/product", id] : null,
+    fetcher,
+    {
+      ...defaultSWRConfig,
+      refreshInterval: 30000,
+    }
+  );
+
+  // Normalize product from API response
+  let product: Product | null = null;
+  if (data?.success && data.data) {
+    product = data.data;
+  }
+
+  return {
+    data,
+    product,
     error,
     isLoading,
     mutate,

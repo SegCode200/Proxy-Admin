@@ -55,7 +55,7 @@ export const router = createBrowserRouter([
             element: withSuspense(Listing),
           },
           {
-            path: "listing/:id",
+            path: "listings/:id",
             element: withSuspense(ListingDetailed),
           },
           {

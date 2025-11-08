@@ -25,27 +25,27 @@ import type { RootState } from "@/store/store";
 
 export default function ListingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("pending");
+  const [statusFilter, setStatusFilter] = useState("ALL");
   const token = useSelector((state: RootState) => state?.auth?.user?.token);
   const { products = [], isLoading, error } = useAllProduct(token);
   console.log(products);
-  const statuses = ["pending", "approved", "rejected"];
+  const statuses = ["PENDING", "APPROVED", "REJECTED"];
   const filteredProducts = products.filter((product) => {
     const title = String(product?.title ?? "");
     const sellerName = String(product?.seller?.name ?? "");
-    const status = String(product?.status ?? "").toLowerCase();
+    const status = String(product?.status ?? "");
 
     const q = String(searchTerm ?? "").toLowerCase();
     const matchesSearch =
       title.toLowerCase().includes(q) || sellerName.toLowerCase().includes(q);
-    const matchesStatus = statusFilter === "all" || status === statusFilter;
+    const matchesStatus = statusFilter === "ALL" || status === statusFilter;
     return matchesSearch && matchesStatus;
   });
-
+  console.log(filteredProducts);
   const stats = {
-    pending: products.filter((p) => p.status === "pending").length,
-    approved: products.filter((p) => p.status === "approved").length,
-    rejected: products.filter((p) => p.status === "rejected").length,
+    pending: products.filter((p) => p.status === "PENDING").length,
+    approved: products.filter((p) => p.status === "APPROVED").length,
+    rejected: products.filter((p) => p.status === "REJECTED").length,
   };
 
   return (
@@ -99,17 +99,19 @@ export default function ListingsPage() {
 
           {/* Status Filter */}
           <div className="flex flex-wrap gap-2">
-            {["all", ...statuses].map((status) => (
+            {["ALL", ...statuses].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors capitalize ${
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   statusFilter === status
                     ? "bg-primary text-primary-foreground"
                     : "bg-secondary text-foreground hover:bg-secondary/80"
                 }`}
               >
-                {status}
+                {status === "ALL"
+                  ? "All"
+                  : status.charAt(0) + status.slice(1).toLowerCase()}
               </button>
             ))}
           </div>
@@ -139,22 +141,22 @@ export default function ListingsPage() {
                 {/* Product Image */}
                 <div className="relative h-48 overflow-hidden bg-secondary">
                   <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
+                    src={product.media?.[0]?.url || "/placeholder.svg"}
+                    alt={product.title}
                     className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                   />
                   <div
                     className={`absolute top-3 right-3 px-3 py-1 rounded-full text-sm font-medium ${
-                      product.status === "approved"
+                      product.status === "APPROVED"
                         ? "bg-green-500/20 text-green-700"
-                        : product.status === "pending"
+                        : product.status === "PENDING"
                         ? "bg-yellow-500/20 text-yellow-700"
                         : "bg-red-500/20 text-red-700"
                     }`}
                   >
                     {product.status
-                      ? product.status.charAt(0).toUpperCase() +
-                        product.status.slice(1)
+                      ? product.status.charAt(0) +
+                        product.status.slice(1).toLowerCase()
                       : "N/A"}
                   </div>
                 </div>
@@ -162,7 +164,7 @@ export default function ListingsPage() {
                 {/* Product Info */}
                 <div className="p-4">
                   <p className="mb-1 text-sm text-muted-foreground">
-                    {product.extraDetails?.[0]?.title || 'No Category'}
+                    {product.extraDetails?.[0]?.title || "No Category"}
                   </p>
                   <h3 className="mb-2 font-semibold transition-colors text-foreground line-clamp-2 group-hover:text-primary">
                     {product.title}
@@ -175,7 +177,8 @@ export default function ListingsPage() {
 
                   {/* Submitted Date */}
                   <p className="mb-3 text-xs text-muted-foreground">
-                    Submitted: {new Date(product.createdAt).toLocaleDateString()}
+                    Submitted:{" "}
+                    {new Date(product.createdAt).toLocaleDateString()}
                   </p>
 
                   {/* Price and Action */}

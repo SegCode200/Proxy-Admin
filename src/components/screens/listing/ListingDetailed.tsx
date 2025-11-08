@@ -3,121 +3,47 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
-  CheckCircle,
-  XCircle,
-} from "lucide-react";
-
-interface ProductDetail {
-  id: string;
-  name: string;
-  category: string;
-  seller: string;
-  sellerImage: string;
-  price: number;
-  rating: number;
-  reviews: number;
-  description: string;
-  specifications: Record<string, string>;
-  image: string;
-  images: string[];
-  status: "pending" | "approved" | "rejected";
-  stock: number;
-  inStock: boolean;
-  seller_email: string;
-  seller_phone: string;
-  seller_location: string;
-  seller_website?: string;
-  submittedDate: string;
-}
-
-const productData: Record<string, ProductDetail> = {
-  "1": {
-    id: "1",
-    name: "Premium Wireless Headphones",
-    category: "Electronics",
-    seller: "TechStore Pro",
-    sellerImage: "/seller-avatar.png",
-    price: 149.99,
-    rating: 0,
-    reviews: 0,
-    description:
-      "Experience crystal-clear audio with our premium wireless headphones. Featuring active noise cancellation, 30-hour battery life, and premium comfort for extended listening sessions.",
-    specifications: {
-      "Battery Life": "30 hours",
-      Connectivity: "Bluetooth 5.0",
-      "Noise Cancellation": "Active (ANC)",
-      "Driver Size": "40mm",
-      Weight: "250g",
-      Warranty: "2 years",
-    },
-    image: "/wireless-headphones.png",
-    images: ["/wireless-headphones.png"],
-    status: "pending",
-    stock: 45,
-    inStock: true,
-    seller_email: "support@techstorepro.com",
-    seller_phone: "+1 (555) 123-4567",
-    seller_location: "New York, NY",
-    seller_website: "www.techstorepro.com",
-    submittedDate: "2024-01-15",
-  },
-  "2": {
-    id: "2",
-    name: "Organic Coffee Beans",
-    category: "Food & Beverages",
-    seller: "Coffee Masters",
-    sellerImage: "/cozy-corner-cafe.png",
-    price: 24.99,
-    rating: 0,
-    reviews: 0,
-    description:
-      "Premium single-origin coffee beans sourced directly from Ethiopian highlands. Medium roast with notes of blueberry and chocolate. Perfect for espresso or pour-over.",
-    specifications: {
-      Origin: "Ethiopia - Yirgacheffe",
-      Roast: "Medium",
-      "Bag Size": "1 lb (454g)",
-      "Flavor Profile": "Blueberry, Chocolate, Floral",
-      Processing: "Washed",
-    },
-    image: "/pile-of-coffee-beans.png",
-    images: ["/pile-of-coffee-beans.png"],
-    status: "pending",
-    stock: 120,
-    inStock: true,
-    seller_email: "info@coffeemasters.com",
-    seller_phone: "+1 (555) 987-6543",
-    seller_location: "Seattle, WA",
-    submittedDate: "2024-01-14",
-  },
-};
+import { ArrowLeft, Mail, CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { useGetProductById } from "@/hooks/useHook";
 
 export default function ProductDetailPage() {
-  const params = useParams();
-  //   const router = useNavigate();
-  const productId = params.id as string;
-  const [product, setProduct] = useState<ProductDetail | null>(
-    productData[productId] || null
-  );
+  const { id } = useParams<{ id: string }>();
+  console.log(id);
+  const { product, isLoading, error } = useGetProductById(id as string);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  if (!product) {
+  if (isLoading) {
     return (
       <div className="flex-1 p-8">
         <Link
-          to="/listings"
+          to="/listing"
+          className="flex items-center gap-2 mb-8 text-primary hover:underline"
+        >
+          <ArrowLeft size={20} />
+          Back to Listings
+        </Link>
+        <div className="flex flex-col items-center justify-center py-12">
+          <Loader2 className="w-10 h-10 text-[#004CFF] animate-spin mb-4" />
+          <p className="text-gray-600">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="flex-1 p-8">
+        <Link
+          to="/listing"
           className="flex items-center gap-2 mb-8 text-primary hover:underline"
         >
           <ArrowLeft size={20} />
           Back to Listings
         </Link>
         <div className="py-12 text-center">
-          <p className="text-lg text-muted-foreground">Product not found</p>
+          <p className="text-lg text-muted-foreground">
+            {error ? "Failed to load product" : "Product not found"}
+          </p>
         </div>
       </div>
     );
@@ -125,17 +51,17 @@ export default function ProductDetailPage() {
 
   const handleApprove = async () => {
     setIsProcessing(true);
-    // Simulate API call
+    // TODO: Implement actual approve API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setProduct({ ...product, status: "approved" });
+    // For now, just simulate - in real implementation, refetch data
     setIsProcessing(false);
   };
 
   const handleReject = async () => {
     setIsProcessing(true);
-    // Simulate API call
+    // TODO: Implement actual reject API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    setProduct({ ...product, status: "rejected" });
+    // For now, just simulate - in real implementation, refetch data
     setIsProcessing(false);
   };
 
@@ -144,7 +70,7 @@ export default function ProductDetailPage() {
       <div className="p-8">
         {/* Back Button */}
         <Link
-          to="/listings"
+          to="/listing"
           className="flex items-center gap-2 mb-8 text-primary hover:underline w-fit"
         >
           <ArrowLeft size={20} />
@@ -156,8 +82,8 @@ export default function ProductDetailPage() {
           <div className="lg:col-span-2">
             <div className="mb-4 overflow-hidden rounded-lg bg-secondary h-96">
               <img
-                src={product.image || "/placeholder.svg"}
-                alt={product.name}
+                src={product.media?.[0]?.url || "/placeholder.svg"}
+                alt={product.title}
                 className="object-cover w-full h-full"
               />
             </div>
@@ -168,22 +94,22 @@ export default function ProductDetailPage() {
             {/* Category & Status */}
             <div>
               <p className="mb-2 text-sm text-muted-foreground">
-                {product.category}
+                {product.extraDetails?.[0]?.title || "No Category"}
               </p>
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold text-foreground">
-                  {product.name}
+                  {product.title}
                 </h1>
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium capitalize ${
-                    product.status === "approved"
+                    product.status === "APPROVED"
                       ? "bg-green-500/20 text-green-700"
-                      : product.status === "pending"
+                      : product.status === "PENDING"
                       ? "bg-yellow-500/20 text-yellow-700"
                       : "bg-red-500/20 text-red-700"
                   }`}
                 >
-                  {product.status}
+                  {product.status?.toLowerCase()}
                 </span>
               </div>
             </div>
@@ -194,7 +120,7 @@ export default function ProductDetailPage() {
                 Submitted Date
               </p>
               <p className="font-semibold text-foreground">
-                {product.submittedDate}
+                {new Date(product.createdAt).toLocaleDateString()}
               </p>
             </div>
 
@@ -202,31 +128,31 @@ export default function ProductDetailPage() {
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">Asking Price</p>
               <span className="text-4xl font-bold text-primary">
-                ${product.price}
+                {product.currency} {product.price?.toLocaleString()}
               </span>
             </div>
 
             {/* Stock Status */}
             <div
               className={`p-4 rounded-lg ${
-                product.inStock ? "bg-green-500/10" : "bg-red-500/10"
+                (product.stock ?? 0) > 0 ? "bg-green-500/10" : "bg-red-500/10"
               }`}
             >
               <p
                 className={
-                  product.inStock
+                  (product.stock ?? 0) > 0
                     ? "text-green-700 font-medium"
                     : "text-red-700 font-medium"
                 }
               >
-                {product.inStock
+                {(product.stock ?? 0) > 0
                   ? `In Stock (${product.stock} units)`
                   : "Out of Stock"}
               </p>
             </div>
 
             {/* Approval Actions - Added approve/reject buttons */}
-            {product.status === "pending" ? (
+            {product.status === "PENDING" ? (
               <div className="pt-4 space-y-3 border-t border-border">
                 <button
                   onClick={handleApprove}
@@ -252,12 +178,12 @@ export default function ProductDetailPage() {
                 </p>
                 <p
                   className={`font-semibold capitalize ${
-                    product.status === "approved"
+                    product.status === "APPROVED"
                       ? "text-green-700"
                       : "text-red-700"
                   }`}
                 >
-                  {product.status === "approved" ? "✓ Approved" : "✗ Rejected"}
+                  {product.status === "APPROVED" ? "✓ Approved" : "✗ Rejected"}
                 </p>
               </div>
             )}
@@ -274,21 +200,36 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Specifications */}
+        {/* Product Details */}
         <div className="pt-8 mt-12 border-t border-border">
           <h2 className="mb-6 text-2xl font-bold text-foreground">
-            Specifications
+            Product Details
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {Object.entries(product.specifications).map(([key, value]) => (
-              <div
-                key={key}
-                className="p-4 border rounded-lg bg-card border-border"
-              >
-                <p className="mb-1 text-sm text-muted-foreground">{key}</p>
-                <p className="font-semibold text-foreground">{value}</p>
-              </div>
-            ))}
+            <div className="p-4 border rounded-lg bg-card border-border">
+              <p className="mb-1 text-sm text-muted-foreground">Condition</p>
+              <p className="font-semibold capitalize text-foreground">
+                {product.condition}
+              </p>
+            </div>
+            <div className="p-4 border rounded-lg bg-card border-border">
+              <p className="mb-1 text-sm text-muted-foreground">Type</p>
+              <p className="font-semibold text-foreground">
+                {product.isDigital ? "Digital" : "Physical"}
+              </p>
+            </div>
+            <div className="p-4 border rounded-lg bg-card border-border">
+              <p className="mb-1 text-sm text-muted-foreground">Stock</p>
+              <p className="font-semibold text-foreground">
+                {product.stock} units
+              </p>
+            </div>
+            <div className="p-4 border rounded-lg bg-card border-border">
+              <p className="mb-1 text-sm text-muted-foreground">Category ID</p>
+              <p className="font-semibold text-foreground">
+                {product.categoryId}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -300,13 +241,13 @@ export default function ProductDetailPage() {
           <div className="p-6 border rounded-lg bg-card border-border">
             <div className="flex items-start gap-4 mb-6">
               <img
-                src={product.sellerImage || "/placeholder.svg"}
-                alt={product.seller}
+                src="/placeholder.svg"
+                alt={product.seller.name}
                 className="object-cover w-16 h-16 rounded-lg"
               />
               <div>
                 <h3 className="text-lg font-semibold text-foreground">
-                  {product.seller}
+                  {product.seller.name}
                 </h3>
                 <p className="text-sm text-muted-foreground">Seller Account</p>
               </div>
@@ -314,40 +255,14 @@ export default function ProductDetailPage() {
 
             <div className="space-y-3">
               <div className="flex items-center gap-3 text-foreground">
-                <MapPin size={18} className="text-primary" />
-                <span>{product.seller_location}</span>
-              </div>
-              <div className="flex items-center gap-3 text-foreground">
                 <Mail size={18} className="text-primary" />
                 <a
-                  href={`mailto:${product.seller_email}`}
+                  href={`mailto:${product.seller.email}`}
                   className="hover:underline"
                 >
-                  {product.seller_email}
+                  {product.seller.email}
                 </a>
               </div>
-              <div className="flex items-center gap-3 text-foreground">
-                <Phone size={18} className="text-primary" />
-                <a
-                  href={`tel:${product.seller_phone}`}
-                  className="hover:underline"
-                >
-                  {product.seller_phone}
-                </a>
-              </div>
-              {product.seller_website && (
-                <div className="flex items-center gap-3 text-foreground">
-                  <Globe size={18} className="text-primary" />
-                  <a
-                    href={`https://${product.seller_website}`}
-                    className="hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {product.seller_website}
-                  </a>
-                </div>
-              )}
             </div>
           </div>
         </div>

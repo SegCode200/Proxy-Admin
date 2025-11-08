@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  font-family: "Momo Trust Display", sans-serif;
-  font-weight: 400;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
   font-style: normal;
   line-height: 1.5;
 
