@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Search,
-  Flag,
-  CheckCircle,
-  AlertTriangle,
-  Loader2,
-  Eye,
-} from "lucide-react";
+import { Search, Flag, CheckCircle, Loader2, Eye } from "lucide-react";
 import { useGetAllReports, useResolveReport } from "@/hooks/useHook";
 import { useSelector } from "react-redux";
 import { selectUser } from "@/store/authSlice";
