@@ -11,13 +11,13 @@ const api = axios.create({
 export const banUser = async (token: string, userId: string) => {
   try {
     const res = await api.post(
-      `/ban/${userId}`, 
+      `/ban/${userId}`,
       {}, // Empty data object since we don't need to send any data in the request body
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
     console.log(res);
@@ -29,13 +29,46 @@ export const banUser = async (token: string, userId: string) => {
 export const unbanUser = async (token: string, userId: string) => {
   try {
     const res = await api.post(
-      `/unban/${userId}`, 
+      `/unban/${userId}`,
       {}, // Empty data object since we don't need to send any data in the request body
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    console.log(res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const getAllReports = async (token: string) => {
+  try {
+    const res = await api.get("/reports", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("RES",res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const resolveReport = async (token: string, reportId: string) => {
+  try {
+    const res = await api.post(
+      `/resolve-report/${reportId}`,
+      {}, // Empty data object since we don't need to send any data in the request body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       }
     );
     console.log(res);

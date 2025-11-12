@@ -19,6 +19,16 @@ export const Listing = lazy(
 export const ListingDetailed = lazy(
   () => import("@/components/screens/listing/ListingDetailed")
 );
+export const CategoriesPage = lazy(
+  () => import("@/components/screens/categories/CategoriesPage")
+);
+export const AddCategoryPage = lazy(
+  () => import("@/components/screens/categories/AddCategoryPage")
+);
+export const Kyc = lazy(() => import("@/components/screens/kyc/KycPage"));
+export const Reports = lazy(
+  () => import("@/components/screens/reports/ReportsPage")
+);
 
 const withSuspense = (Component: React.ComponentType) => (
   <Suspense fallback={<Spinner />}>
@@ -61,6 +71,22 @@ export const router = createBrowserRouter([
           {
             path: "rides",
             element: withSuspense(Rides),
+          },
+          {
+            path: "kyc",
+            element: withSuspense(Kyc),
+          },
+          {
+            path: "categories",
+            element: withSuspense(CategoriesPage),
+          },
+          {
+            path: "categories/add",
+            element: withSuspense(AddCategoryPage),
+          },
+          {
+            path: "reports",
+            element: withSuspense(Reports),
           },
         ],
       },

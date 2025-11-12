@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { dashboardStat } from "@/apis/dashboard";
 import { getAllRides, getRidesMonthlyStat, getRidesStat } from "@/apis/rides";
 import {
@@ -6,6 +7,14 @@ import {
   getOneUser,
   getOneVendor,
 } from "@/apis/users";
+import { getKycRequests, updateKycStatus } from "@/apis/kyc";
+import {
+  getCategories,
+  editCategory,
+  deleteCategory,
+  addCategory,
+} from "@/apis/categories";
+import { getAllReports, resolveReport } from "@/apis/ban_report";
 import useSWR from "swr";
 import type { SWRConfiguration } from "swr";
 import { AllProduct, GetProductById } from "@/apis/listing";
@@ -126,6 +135,182 @@ export const useDashboardStat = (token: string) => {
     fetcher,
     defaultSWRConfig
   );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+};
+
+/**
+ * Hook to add category via admin API
+ * @returns Add function and loading state
+ */
+export const useAddCategory = () => {
+  const [isAdding, setIsAdding] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addCategoryData = async (
+    data: { name: string; description: string; image?: File },
+    token: string
+  ) => {
+    setIsAdding(true);
+    setError(null);
+
+    try {
+      const response = await addCategory(data, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message || err.message || "Failed to add category";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  return {
+    addCategoryData,
+    isAdding,
+    error,
+  };
+};
+
+/**
+ * Hook to edit category via admin API
+ * @returns Edit function and loading state
+ */
+export const useEditCategory = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const editCategoryData = async (
+    id: string,
+    data: { name?: string; description?: string; image?: File },
+    token: string
+  ) => {
+    setIsEditing(true);
+    setError(null);
+
+    try {
+      const response = await editCategory(id, data, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to edit category";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  return {
+    editCategoryData,
+    isEditing,
+    error,
+  };
+};
+
+/**
+ * Hook to delete category via admin API
+ * @returns Delete function and loading state
+ */
+export const useDeleteCategory = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteCategoryData = async (id: string, token: string) => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await deleteCategory(id, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to delete category";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return {
+    deleteCategoryData,
+    isDeleting,
+    error,
+  };
+};
+
+/**
+ * Hook to update KYC status via admin API
+ * @param token Authentication token
+ * @returns Update function and loading state
+ */
+export const useUpdateKycStatus = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateStatus = async (
+    kycId: string,
+    status: "APPROVED" | "REJECTED",
+    token: string
+  ) => {
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      const response = await updateKycStatus(kycId, status, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to update KYC status";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return {
+    updateStatus,
+    isUpdating,
+    error,
+  };
+};
+
+/**
+ * Hook to fetch categories via admin API
+ * @returns Categories data, loading state, and error if any
+ */
+export const useGetCategories = () => {
+  const fetcher = async () => {
+    try {
+      const response = await getCategories();
+      // API may return different shapes; return as-is and let caller handle
+      return response;
+    } catch (err) {
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to fetch categories");
+    }
+  };
+
+  const { data, error, isLoading, mutate } = useSWR("/categories", fetcher, {
+    ...defaultSWRConfig,
+    refreshInterval: 30000, // Refresh every 30 seconds for categories
+  });
 
   return {
     data,
@@ -456,5 +641,107 @@ export const useGetProductById = (id: string) => {
     error,
     isLoading,
     mutate,
+  };
+};
+
+/**
+ * Hook to fetch KYC requests via admin API
+ * @param token Authentication token
+ * @returns KYC requests data, loading state, and error if any
+ */
+export const useGetKycRequests = (token: string) => {
+  const fetcher = async () => {
+    try {
+      const response = await getKycRequests(token);
+      // API may return different shapes; return as-is and let caller handle
+      return response;
+    } catch (err) {
+      throw err instanceof Error
+        ? err
+        : new Error("Failed to fetch KYC requests");
+    }
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    token ? ["/kyc/requests", token] : null,
+    fetcher,
+    {
+      ...defaultSWRConfig,
+      refreshInterval: 30000, // Refresh every 30 seconds for KYC requests
+    }
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+};
+
+/**
+ * Hook to fetch all reports via admin API
+ * @param token Authentication token
+ * @returns Reports data, loading state, and error if any
+ */
+export const useGetAllReports = (token: string) => {
+  const fetcher = async () => {
+    try {
+      const response = await getAllReports(token);
+      // API may return different shapes; return as-is and let caller handle
+      return response;
+    } catch (err) {
+      throw err instanceof Error ? err : new Error("Failed to fetch reports");
+    }
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    token ? ["/reports", token] : null,
+    fetcher,
+    {
+      ...defaultSWRConfig,
+      refreshInterval: 30000, // Refresh every 30 seconds for reports
+    }
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+    mutate,
+  };
+};
+
+/**
+ * Hook to resolve report via admin API
+ * @returns Resolve function and loading state
+ */
+export const useResolveReport = () => {
+  const [isResolving, setIsResolving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const resolveReportData = async (reportId: string, token: string) => {
+    setIsResolving(true);
+    setError(null);
+
+    try {
+      const response = await resolveReport(token, reportId);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to resolve report";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsResolving(false);
+    }
+  };
+
+  return {
+    resolveReportData,
+    isResolving,
+    error,
   };
 };
