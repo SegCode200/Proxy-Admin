@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { dashboardStat } from "@/apis/dashboard";
 import { getAllRides, getRidesMonthlyStat, getRidesStat } from "@/apis/rides";
 import {
@@ -6,6 +6,9 @@ import {
   getOneRider,
   getOneUser,
   getOneVendor,
+  getAllVendorApplications,
+  approveVendor,
+  rejectVendor,
 } from "@/apis/users";
 import { getKycRequests, updateKycStatus } from "@/apis/kyc";
 import {
@@ -744,4 +747,114 @@ export const useResolveReport = () => {
     isResolving,
     error,
   };
+};
+
+// Vendor Application Types
+export interface VendorApplication {
+  id: string;
+  userId: string;
+  description: string | null;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  rejectionNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    email: string;
+    phone: string;
+    name: string;
+    role: string;
+    isEmailVerified: boolean;
+    isKycVerified: boolean;
+    isBanned: boolean;
+    createdAt: string;
+    kycDocumentId: string | null;
+    otpCode: string | null;
+    otpExpiresAt: string | null;
+    riderId: string | null;
+    provider: string | null;
+    providerId: string | null;
+  };
+}
+
+/**
+ * Hook to fetch vendor applications via admin API
+ * @param token Authentication token
+ * @returns Vendor applications data, loading state, and error if any
+ */
+export const useGetVendorApplications = (token: string) => {
+  const [data, setData] = useState<VendorApplication[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await getAllVendorApplications(token);
+      setData(response.data || []);
+      setError(null);
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to fetch vendor applications');
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return { data, isLoading, error, refetch: fetchData };
+};
+
+/**
+ * Hook to approve vendor application via admin API
+ * @returns Approve function and loading state
+ */
+export const useApproveVendor = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const approve = async (id: string, token: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await approveVendor(id, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to approve vendor';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { approve, isLoading, error };
+};
+
+/**
+ * Hook to reject vendor application via admin API
+ * @returns Reject function and loading state
+ */
+export const useRejectVendor = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const reject = async (id: string, token: string, note: string = '') => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await rejectVendor(id, token, note);
+      return response;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to reject vendor';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { reject, isLoading, error };
 };

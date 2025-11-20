@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search, ChevronRight, Loader2 } from "lucide-react";
 import { useAllProduct } from "@/hooks/useHook";
@@ -26,6 +26,22 @@ import type { RootState } from "@/store/store";
 export default function ListingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+  const drawerRef = useRef<HTMLDivElement | null>(null);
+
+  // Close drawer on Escape and focus drawer when opened
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedProduct(null);
+    };
+    if (selectedProduct) {
+      document.addEventListener("keydown", onKey);
+      // focus drawer for accessibility
+      setTimeout(() => drawerRef.current?.focus(), 0);
+    }
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selectedProduct]);
   const token = useSelector((state: RootState) => state?.auth?.user?.token);
   const { products = [], isLoading, error } = useAllProduct(token);
   console.log(products);
@@ -186,8 +202,20 @@ export default function ListingsPage() {
                     <div className="text-lg font-bold text-primary">
                       {product.currency} {(product.price ?? 0).toLocaleString()}
                     </div>
-                    <div className="p-2 transition-colors rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
-                      <ChevronRight size={16} />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSelectedProduct(product);
+                        }}
+                        className="px-3 py-1 text-sm font-medium rounded-md bg-secondary/80 hover:bg-secondary"
+                      >
+                        View
+                      </button>
+                      <div className="p-2 transition-colors rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                        <ChevronRight size={16} />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -199,6 +227,65 @@ export default function ListingsPage() {
             </div>
           )}
         </div>
+        {/* Response Viewer Drawer (right-side) */}
+        {selectedProduct && (
+          <div className="fixed inset-0 z-50 flex">
+            {/* overlay */}
+            <button
+              aria-label="Close drawer"
+              className="absolute inset-0 bg-black/40"
+              onClick={() => setSelectedProduct(null)}
+            />
+
+            {/* drawer panel */}
+            <div
+              ref={drawerRef}
+              role="dialog"
+              aria-modal="true"
+              tabIndex={-1}
+              className="relative ml-auto w-full max-w-md h-full bg-white shadow-xl p-4 flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">Product Response</h2>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(
+                          JSON.stringify(selectedProduct, null, 2)
+                        );
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      } catch (err) {
+                        console.error("Copy failed", err);
+                      }
+                    }}
+                    className="px-3 py-1 text-sm rounded bg-secondary/80"
+                  >
+                    Copy
+                  </button>
+                  <button
+                    onClick={() => setSelectedProduct(null)}
+                    className="px-3 py-1 text-sm rounded bg-secondary/80"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+
+              {copied && (
+                <div className="mt-2 text-sm text-green-600">Copied!</div>
+              )}
+
+              <div className="mt-4 overflow-auto prose-pre:max-h-[70vh]">
+                <pre className="whitespace-pre-wrap text-sm bg-slate-50 rounded p-3 overflow-auto">
+                  {JSON.stringify(selectedProduct, null, 2)}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

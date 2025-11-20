@@ -29,6 +29,9 @@ export const Kyc = lazy(() => import("@/components/screens/kyc/KycPage"));
 export const Reports = lazy(
   () => import("@/components/screens/reports/ReportsPage")
 );
+export const VendorApplications = lazy(
+  () => import("@/components/screens/vendors/VendorApplicationsPage")
+);
 
 const withSuspense = (Component: React.ComponentType) => (
   <Suspense fallback={<Spinner />}>
@@ -87,6 +90,10 @@ export const router = createBrowserRouter([
           {
             path: "reports",
             element: withSuspense(Reports),
+          },
+          {
+            path: "vendor-applications",
+            element: withSuspense(VendorApplications),
           },
         ],
       },

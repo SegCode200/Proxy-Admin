@@ -82,3 +82,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add this at the bottom of your file (or inside an appropriate @layer utilities block) */
+@layer utilities {
+  /* utility to hide scrollbars while preserving scroll behavior */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
+    background: transparent;
+  }
+
+  /* Optional: nicer momentum scrolling on iOS / mobile */
+  .no-scrollbar {
+    -webkit-overflow-scrolling: touch;
+  }
+}
