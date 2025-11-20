@@ -8,14 +8,13 @@ import {
   Users,
   ShoppingBag,
   LogOut,
-  Menu,
   X,
   Flag,
   Store,
   ChevronDown,
   Bike,
   FolderOpen,
-  UserCheck2
+  UserCheck2,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -24,7 +23,7 @@ interface SidebarProps {
   onToggle?: () => void;
 }
 
-export function Sidebar({ isOpen, onClose, onToggle }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -38,7 +37,7 @@ export function Sidebar({ isOpen, onClose, onToggle }: SidebarProps) {
 
   return (
     <>
-      <button
+      {/* <button
         onClick={onToggle || onClose}
         className={`fixed z-40 p-2 rounded-md lg:hidden top-3 left-3 bg-[#004cff] text-white shadow-lg hover:bg-[#0056cc] transition-colors ${
           isOpen ? "hidden" : "block"
@@ -46,7 +45,7 @@ export function Sidebar({ isOpen, onClose, onToggle }: SidebarProps) {
         aria-label="Open sidebar menu"
       >
         <Menu size={24} />
-      </button>
+      </button> */}
       <aside
         className={`fixed lg:static left-0 top-0 h-screen w-64 bg-white text-sidebar-foreground border-r border-sidebar-border shadow-xl lg:shadow-none transition-transform duration-300 ease-in-out z-40 flex flex-col pb-6 overflow-y-auto scrollbar-hide ${
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
