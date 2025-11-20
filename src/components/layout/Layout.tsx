@@ -8,7 +8,7 @@ export default function Layout() {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 overflow-y-auto scrollbar-hide">
           <div className="p-6 space-y-6">
             <Outlet />
           </div>
