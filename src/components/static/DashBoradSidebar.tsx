@@ -1,25 +1,30 @@
 import { useState } from "react";
-import {
-  Menu,
-  X,
-  BarChart3,
-  Users,
-  ShoppingCart,
-  LogOut,
-  Motorbike,
-  UserRoundCheck,
-  ChevronDown,
-  FolderOpen,
-  Flag,
-  Store,
-} from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logoutState } from "@/store/authSlice";
 import { persistor } from "@/store/store";
+import { logoutState } from "@/store/authSlice";
+import {
+  BarChart3,
+  Users,
+  ShoppingBag,
+  LogOut,
+  Menu,
+  X,
+  Flag,
+  Store,
+  ChevronDown,
+  Bike,
+  FolderOpen,
+  UserCheck2
+} from "lucide-react";
 
-export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onToggle?: () => void;
+}
+
+export function Sidebar({ isOpen, onClose, onToggle }: SidebarProps) {
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,11 +35,12 @@ export function Sidebar() {
     navigate("/login");
     console.log("LogOut Successful 😁🥂😉");
   };
+
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
-        className={`fixed z-40 p-2 rounded-md lg:hidden top-3 left-3 bg-[#004cff] text-primary-foreground shadow-lg hover:bg-[#0056cc] transition-colors ${
+        onClick={onToggle || onClose}
+        className={`fixed z-40 p-2 rounded-md lg:hidden top-3 left-3 bg-[#004cff] text-white shadow-lg hover:bg-[#0056cc] transition-colors ${
           isOpen ? "hidden" : "block"
         }`}
         aria-label="Open sidebar menu"
@@ -52,7 +58,7 @@ export function Sidebar() {
           </div>
           <h1 className="text-xl font-bold">Admin</h1>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={onClose}
             className="p-1 ml-auto text-gray-600 transition-colors rounded-md lg:hidden hover:bg-gray-100"
             aria-label="Close sidebar"
           >
@@ -63,9 +69,9 @@ export function Sidebar() {
         <nav className="flex-1 p-4 space-y-2 ">
           <NavLink icon={BarChart3} label="Dashboard" href="/" />
           <NavLink icon={Users} label="Users" href="/users" />
-          <NavLink icon={Motorbike} label="Rides" href="/rides" />
-          <NavLink icon={ShoppingCart} label="Listing" href="/listing" />
-          <NavLink icon={UserRoundCheck} label="Kyc Verification" href="/kyc" />
+          <NavLink icon={Bike} label="Rides" href="/rides" />
+          <NavLink icon={ShoppingBag} label="Listing" href="/listing" />
+          <NavLink icon={UserCheck2} label="Kyc Verification" href="/kyc" />
           <NavLink icon={Flag} label="Reports" href="/reports" />
           <NavLink
             icon={Store}
@@ -125,7 +131,7 @@ export function Sidebar() {
       {isOpen && (
         <div
           className="fixed top-0 bottom-0 left-0 right-0 z-30 lg:hidden bg-black/50 backdrop-blur-sm"
-          onClick={() => setIsOpen(false)}
+          onClick={onClose}
         />
       )}
     </>
