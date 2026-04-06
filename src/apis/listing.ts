@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://proxy-backend-6of2.onrender.com/api/admin";
-const API_URLList = "https://proxy-backend-6of2.onrender.com/api/listings";
+const API_URL = "https://proxy-backend-1rfl.onrender.com/api/admin";
+const API_URLList = "https://proxy-backend-1rfl.onrender.com/api/listings";
 
 // Create axios instance with default config
 const api = axios.create({

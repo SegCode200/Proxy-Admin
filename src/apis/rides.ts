@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://proxy-backend-6of2.onrender.com/api/admin";
-const API_URL_Rides = "https://proxy-backend-6of2.onrender.com/api/rider";
+const API_URL = "https://proxy-backend-1rfl.onrender.com/api/admin";
+const API_URL_Rides = "https://proxy-backend-1rfl.onrender.com/api/rider";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -122,7 +122,7 @@ export const rejectRider = async (
 
 // import axios from "axios";
 
-// const API_URL = "https://proxy-backend-6of2.onrender.com/api/admin";
+// const API_URL = "https://proxy-backend-1rfl.onrender.com/api/admin";
 
 // // Create axios instance with default config
 // const api = axios.create({

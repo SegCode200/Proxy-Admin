@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://proxy-backend-6of2.onrender.com",
+        target: "https://proxy-backend-1rfl.onrender.com",
         changeOrigin: true,
         secure: false, // accept self-signed cert if any
       },
