@@ -80,3 +80,53 @@ export const addCategory = async (
     throw error;
   }
 };
+
+// SubCategory APIs
+export const createSubCategory = async (
+  data: { name: string; description?: string; categoryId: string },
+  token: string
+) => {
+  try {
+    const res = await api.post("/add-sub-category", data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const updateSubCategory = async (
+  id: string,
+  data: { name?: string; description?: string; categoryId?: string },
+  token: string
+) => {
+  try {
+    const res = await api.put(`/edit-sub-category/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const deleteSubCategory = async (id: string, token: string) => {
+  try {
+    const res = await api.delete(`/delete-sub-category/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(res);
+    return res.data;
+  } catch (error: any) {
+    throw error;
+  }
+};

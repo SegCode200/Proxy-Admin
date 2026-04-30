@@ -16,6 +16,9 @@ import {
   editCategory,
   deleteCategory,
   addCategory,
+  createSubCategory,
+  updateSubCategory,
+  deleteSubCategory,
 } from "@/apis/categories";
 import { getAllReports, resolveReport } from "@/apis/ban_report";
 import useSWR from "swr";
@@ -320,6 +323,113 @@ export const useGetCategories = () => {
     error,
     isLoading,
     mutate,
+  };
+};
+
+/**
+ * Hook to create subcategory via admin API
+ * @returns Create function and loading state
+ */
+export const useCreateSubCategory = () => {
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const createSubCategoryData = async (
+    data: { name: string; description?: string; categoryId: string },
+    token: string
+  ) => {
+    setIsCreating(true);
+    setError(null);
+
+    try {
+      const response = await createSubCategory(data, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message || err.message || "Failed to create subcategory";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  return {
+    createSubCategoryData,
+    isCreating,
+    error,
+  };
+};
+
+/**
+ * Hook to update subcategory via admin API
+ * @returns Update function and loading state
+ */
+export const useUpdateSubCategory = () => {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const updateSubCategoryData = async (
+    id: string,
+    data: { name?: string; description?: string; categoryId?: string },
+    token: string
+  ) => {
+    setIsUpdating(true);
+    setError(null);
+
+    try {
+      const response = await updateSubCategory(id, data, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to update subcategory";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  return {
+    updateSubCategoryData,
+    isUpdating,
+    error,
+  };
+};
+
+/**
+ * Hook to delete subcategory via admin API
+ * @returns Delete function and loading state
+ */
+export const useDeleteSubCategory = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const deleteSubCategoryData = async (id: string, token: string) => {
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await deleteSubCategory(id, token);
+      return response;
+    } catch (err: any) {
+      const errorMessage =
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to delete subcategory";
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  return {
+    deleteSubCategoryData,
+    isDeleting,
+    error,
   };
 };
 
